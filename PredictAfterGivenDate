@@ -1,0 +1,33 @@
+# Filter data to only include matches up to 2022-04-25
+past_data = matches[matches["date"] <= '2022-04-25']
+
+
+# Calculate rolling averages using only past data
+matches_rolling = past_data.groupby("team").apply(
+   lambda x: rolling_averages(x, cols, new_cols)
+)
+matches_rolling = matches_rolling.droplevel('team')
+matches_rolling
+
+
+# Get teams for the upcoming match
+upcoming_match = {"team": "Manchester Utd", "opponent": "Chelsea", "date": "2022-04-28"}
+team_a_stats = matches_rolling[matches_rolling["team"] == "Manchester United"].iloc[-1][predictors + new_cols]
+team_a_stats = team_a_stats.drop(['team', 'opponent'], errors='ignore')
+
+
+team_b_stats = matches_rolling[matches_rolling["team"] == "Chelsea"].iloc[-1][predictors + new_cols]
+team_b_stats = team_a_stats.drop(['team', 'opponent'], errors='ignore')
+
+
+
+
+# Combine stats for the upcoming match
+match_features1 = pd.DataFrame([list(team_a_stats)])
+match_features2 = pd.DataFrame([list(team_b_stats)])
+
+
+prediction1 = rf.predict(match_features1)
+prediction2 = rf.predict(match_features2)
+print("Predicted outcome:", prediction1)
+print("Predicted outcome:", prediction2)
